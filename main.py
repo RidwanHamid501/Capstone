@@ -129,7 +129,14 @@ def main():
                 choice = int(
                     input(f"\nChoose a card to play (1-{len(playable_cards)}): ")) - 1
             else:
-                choice = 0
+                playable_plus2 = [card for card in players[player_turn]
+                                  if card[1] == '+2' or card[1] == '+4']
+                playable_plus4 = [card for card in players[player_turn]
+                                  if card[1] == '+4']
+                if len(playable_plus4) != 0 and top_card[1] == '+2' or top_card[1] == '+4':
+                    choice = playable_cards.index(playable_plus4[0])
+                elif len(playable_plus2) != 0 and top_card[1] == '+2':
+                    choice = playable_cards.index(playable_plus2[0])
             chosen_card = playable_cards[choice]
             players[player_turn].remove(chosen_card)
             top_card = chosen_card
