@@ -93,7 +93,7 @@ def main():
                 players[next_player].extend(draw_cards(deck, 4))
 
         if len(players[player_turn]) == 0:
-            print(f"Player {player_turn + 1} wins!")
+            print(f"PLayer wins!\n" if player_turn == 0 else f"Bot wins!")
             break
 
         turn += direction
