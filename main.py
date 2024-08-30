@@ -39,6 +39,10 @@ def choose_color(turn):
     if turn % 2 == 0:
         chosen_color = input(
             "Choose a color (Red, Yellow, Green, Blue): ")
+        while chosen_color not in colors:
+            print("Error: Choose a valid color.")
+            chosen_color = input(
+                "Choose a color (Red, Yellow, Green, Blue): ")
     else:
         chosen_color = random.choice(
             ['Red', 'Yellow', 'Green', 'Blue'])
