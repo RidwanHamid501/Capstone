@@ -1,6 +1,6 @@
 import random
 
-colours = ['Red', 'Yellow', 'Green', 'Blue']
+colors = ['Red', 'Yellow', 'Green', 'Blue']
 cards = ['0', '1', '2', '3', '4', '5', '6',
          '7', '8', '9', 'Skip', 'Reverse', '+2']
 wild = ['Wild', '+4']
@@ -8,11 +8,11 @@ wild = ['Wild', '+4']
 
 def create_deck():
     deck = []
-    for colour in colours:
+    for color in colors:
         for card in cards:
-            deck.append((colour, card))
+            deck.append((color, card))
             if card != '0':
-                deck.append((colour, card))
+                deck.append((color, card))
 
     for i in range(4):
         deck.append(('Wild', 'Wild'))
@@ -35,6 +35,41 @@ def can_play(card, top_card):
     return card[0] == top_card[0] or card[1] == top_card[1] or card[0] == 'Wild'
 
 
+def choose_color(turn):
+    if turn % 2 == 0:
+        chosen_color = input(
+            "Choose a color (Red, Yellow, Green, Blue): ")
+    else:
+        chosen_color = random.choice(
+            ['Red', 'Yellow', 'Green', 'Blue'])
+
+    return chosen_color
+
+
+def handle_special_cards(top_card, turn, direction, players, deck):
+    if top_card[1] == 'Skip':
+        print("Next player skipped!")
+        turn += direction
+    elif top_card[1] == 'Reverse':
+        print("Reversing direction!")
+        direction *= -1
+    elif top_card[1] == '+2':
+        next_player = (turn + direction) % 2
+        print("Next player draws 2 cards!")
+        players[next_player].extend(draw_cards(deck, 2))
+    elif top_card[1] == 'Wild':
+        chosen_color = choose_color(turn)
+        top_card = (chosen_color, top_card[1])
+    elif top_card[1] == '+4':
+        chosen_color = choose_color(turn)
+        top_card = (chosen_color, top_card[1])
+        next_player = (turn + direction) % 2
+        print("Next player draws 4 cards!")
+        players[next_player].extend(draw_cards(deck, 4))
+
+    return top_card, turn, direction, players, deck
+
+
 def main():
     deck = create_deck()
     players = [draw_cards(deck, 7), draw_cards(deck, 7)]
@@ -44,9 +79,12 @@ def main():
 
     while True:
         player_turn = turn % 2
-        print(f"PLayer's turn\n" if player_turn == 0 else f"Bot's turn")
-        print(f"Top card: {top_card}")
-        print(f"Your cards: {players[player_turn]}")
+
+        if player_turn == 0:
+
+            print("PLayer's turn\n")
+            print(f"Top card: {top_card} \n")
+            print(f"Your cards: {players[0]} \n")
 
         playable_cards = [card for card in players[player_turn]
                           if can_play(card, top_card)]
@@ -56,53 +94,32 @@ def main():
             print(f"Drew: {drawn}")
             if can_play(drawn, top_card):
                 print("Playing drawn card")
-                if drawn[0] != 'Wild':
-                    top_card = drawn
-                else:
-                    chosen_color = input(
-                        "Choose a color (Red, Yellow, Green, Blue): ")
-                    top_card = (chosen_color, top_card[1])
-                    if drawn[1] == '+4':
-                        next_player = (turn + direction) % 2
-                        print("Next player draws 4 cards!")
-                        players[next_player].extend(draw_cards(deck, 4))
+                top_card = drawn
+                top_card, turn, direction, players, deck = handle_special_cards(
+                    top_card, turn, direction, players, deck)
             else:
                 players[player_turn].append(drawn)
         else:
-            for n, card in enumerate(playable_cards):
-                print(f"{n + 1}: {card}")
-            choice = int(
-                input(f"Choose a card to play (1-{len(playable_cards)}): ")) - 1
+            if player_turn == 0:
+                for n, card in enumerate(playable_cards):
+                    print(f"{n + 1}: {card}")
+                choice = int(
+                    input(f"\nChoose a card to play (1-{len(playable_cards)}): ")) - 1
+            else:
+                choice = 0
             chosen_card = playable_cards[choice]
             players[player_turn].remove(chosen_card)
             top_card = chosen_card
             print(f"Played: {top_card}")
 
-            if top_card[1] == 'Skip':
-                print("Next player skipped!")
-                turn += direction
-            elif top_card[1] == 'Reverse':
-                print("Reversing direction!")
-                direction *= -1
-            elif top_card[1] == '+2':
-                next_player = (turn + direction) % 2
-                print("Next player draws 2 cards!")
-                players[next_player].extend(draw_cards(deck, 2))
-            elif top_card[1] == 'Wild':
-                chosen_color = input(
-                    "Choose a color (Red, Yellow, Green, Blue): ")
-                top_card = (chosen_color, top_card[1])
-            elif top_card[1] == '+4':
-                chosen_color = input(
-                    "Choose a color (Red, Yellow, Green, Blue): ")
-                top_card = (chosen_color, top_card[1])
-                next_player = (turn + direction) % 2
-                print("Next player draws 4 cards!")
-                players[next_player].extend(draw_cards(deck, 4))
+            top_card, turn, direction, players, deck = handle_special_cards(
+                top_card, turn, direction, players, deck)
 
         if len(players[player_turn]) == 0:
             print(f"PLayer wins!\n" if player_turn == 0 else f"Bot wins!")
             break
+
+        input("Ready to continue? Press Enter")
 
         turn += direction
 
