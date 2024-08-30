@@ -92,6 +92,8 @@ def main():
     deck = create_deck()
     players = [draw_cards(deck, 7), draw_cards(deck, 7)]
     top_card = deck.pop()
+    while top_card[0] == 'Wild':
+        top_card = deck.pop()
     turn = 0
     direction = 1
     accumulated_draw = 0
@@ -137,6 +139,8 @@ def main():
                     choice = playable_cards.index(playable_plus4[0])
                 elif len(playable_plus2) != 0 and top_card[1] == '+2':
                     choice = playable_cards.index(playable_plus2[0])
+                else:
+                    choice = 0
             chosen_card = playable_cards[choice]
             players[player_turn].remove(chosen_card)
             top_card = chosen_card
