@@ -46,17 +46,32 @@ def choose_color(turn):
     return chosen_color
 
 
-def handle_special_cards(top_card, turn, direction, players, deck):
+def add_accumulated(playable, players, next_player, deck, accumulated_draw):
+    if len(playable) == 0:
+        players[next_player].extend(draw_cards(deck, accumulated_draw))
+        print(f"Next player draws {accumulated_draw} cards!")
+        accumulated_draw = 0
+
+    return accumulated_draw, players
+
+
+def handle_special_cards(top_card, turn, direction, players, deck, accumulated_draw):
     if top_card[1] == 'Skip':
         print("Next player skipped!")
         turn += direction
     elif top_card[1] == 'Reverse':
         print("Reversing direction!")
-        direction *= -1
+        if len(players) == 2:
+            turn += direction
+        else:
+            direction *= -1
     elif top_card[1] == '+2':
         next_player = (turn + direction) % 2
-        print("Next player draws 2 cards!")
-        players[next_player].extend(draw_cards(deck, 2))
+        accumulated_draw += 2
+        playable_plus2 = [card for card in players[next_player]
+                          if card[1] == '+2' or card[1] == '+4']
+        accumulated_draw, players = add_accumulated(playable_plus2, players,
+                                                    next_player, deck, accumulated_draw)
     elif top_card[1] == 'Wild':
         chosen_color = choose_color(turn)
         top_card = (chosen_color, top_card[1])
@@ -64,10 +79,13 @@ def handle_special_cards(top_card, turn, direction, players, deck):
         chosen_color = choose_color(turn)
         top_card = (chosen_color, top_card[1])
         next_player = (turn + direction) % 2
-        print("Next player draws 4 cards!")
-        players[next_player].extend(draw_cards(deck, 4))
+        accumulated_draw += 4
+        playable_plus4 = [card for card in players[next_player]
+                          if card[1] == '+4']
+        accumulated_draw, players = add_accumulated(playable_plus4, players,
+                                                    next_player, deck, accumulated_draw)
 
-    return top_card, turn, direction, players, deck
+    return top_card, turn, direction, players, deck, accumulated_draw
 
 
 def main():
@@ -76,6 +94,7 @@ def main():
     top_card = deck.pop()
     turn = 0
     direction = 1
+    accumulated_draw = 0
 
     while True:
         player_turn = turn % 2
@@ -85,6 +104,10 @@ def main():
             print("PLayer's turn\n")
             print(f"Top card: {top_card} \n")
             print(f"Your cards: {players[0]} \n")
+        else:
+            print("Bot's turn\n")
+            print(f"Top card: {top_card} \n")
+            print(f"Bot's cards: {players[1]} \n")
 
         playable_cards = [card for card in players[player_turn]
                           if can_play(card, top_card)]
@@ -95,8 +118,8 @@ def main():
             if can_play(drawn, top_card):
                 print("Playing drawn card")
                 top_card = drawn
-                top_card, turn, direction, players, deck = handle_special_cards(
-                    top_card, turn, direction, players, deck)
+                top_card, turn, direction, players, deck, accumulated_draw = handle_special_cards(
+                    top_card, turn, direction, players, deck, accumulated_draw)
             else:
                 players[player_turn].append(drawn)
         else:
@@ -112,8 +135,13 @@ def main():
             top_card = chosen_card
             print(f"Played: {top_card}")
 
-            top_card, turn, direction, players, deck = handle_special_cards(
-                top_card, turn, direction, players, deck)
+            top_card, turn, direction, players, deck, accumulated_draw = handle_special_cards(
+                top_card, turn, direction, players, deck, accumulated_draw)
+
+        if player_turn == 0:
+            print(f"New cards: {players[0]} \n")
+        else:
+            print(f"Bot's new cards: {players[1]} \n")
 
         if len(players[player_turn]) == 0:
             print(f"PLayer wins!\n" if player_turn == 0 else f"Bot wins!")
