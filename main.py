@@ -132,15 +132,19 @@ def main():
             if player_turn == 0:
                 for n, card in enumerate(playable_cards):
                     print(f"{n + 1}: {card}")
-                choice = int(
-                    input(f"\nChoose a card to play (1-{len(playable_cards)}): ")) - 1
-                while choice not in range(0, len(playable_cards)):
-                    print("Error: Choose a valid number")
-                    choice = int(
-                        input(f"\nChoose a card to play (1-{len(playable_cards)}): ")) - 1
+                while True:
+                    try:
+                        choice = int(
+                            input(f"\nChoose a card to play (1-{len(playable_cards)}): ")) - 1
+                        if choice in range(0, len(playable_cards)):
+                            break
+                        else:
+                            print("Error: Choose a number within the range")
+                    except ValueError:
+                        print("Error: Enter a valid number")
             else:
                 playable_plus2 = [card for card in players[player_turn]
-                                  if card[1] == '+2' or card[1] == '+4']
+                                  if card[1] == '+2']
                 playable_plus4 = [card for card in players[player_turn]
                                   if card[1] == '+4']
                 if len(playable_plus4) != 0 and top_card[1] == '+2' or top_card[1] == '+4':
