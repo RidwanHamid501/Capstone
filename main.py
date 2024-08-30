@@ -44,8 +44,7 @@ def choose_color(turn):
             chosen_color = input(
                 "Choose a color (Red, Yellow, Green, Blue): ")
     else:
-        chosen_color = random.choice(
-            ['Red', 'Yellow', 'Green', 'Blue'])
+        chosen_color = random.choice(colors)
 
     return chosen_color
 
