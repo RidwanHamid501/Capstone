@@ -58,6 +58,14 @@ def main():
                 print("Playing drawn card")
                 if drawn[0] != 'Wild':
                     top_card = drawn
+                else:
+                    chosen_color = input(
+                        "Choose a color (Red, Yellow, Green, Blue): ")
+                    top_card = (chosen_color, top_card[1])
+                    if drawn[1] == '+4':
+                        next_player = (turn + direction) % 2
+                        print("Next player draws 4 cards!")
+                        players[next_player].extend(draw_cards(deck, 4))
             else:
                 players[player_turn].append(drawn)
         else:
