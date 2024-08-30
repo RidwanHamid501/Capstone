@@ -134,6 +134,10 @@ def main():
                     print(f"{n + 1}: {card}")
                 choice = int(
                     input(f"\nChoose a card to play (1-{len(playable_cards)}): ")) - 1
+                while choice not in range(0, len(playable_cards)):
+                    print("Error: Choose a valid number")
+                    choice = int(
+                        input(f"\nChoose a card to play (1-{len(playable_cards)}): ")) - 1
             else:
                 playable_plus2 = [card for card in players[player_turn]
                                   if card[1] == '+2' or card[1] == '+4']
