@@ -20,3 +20,16 @@ def create_deck():
 
     random.shuffle(deck)
     return deck
+
+
+def draw_cards(deck, count):
+    new_cards = []
+    for i in range(count):
+        if len(deck) != 0:
+            new_cards.append(deck.pop())
+
+    return new_cards
+
+
+def can_play(card, top_card):
+    return card[0] == top_card[0] or card[1] == top_card[1] or card[0] == 'Wild'
